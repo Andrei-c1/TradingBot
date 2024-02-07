@@ -1,9 +1,11 @@
 from typing import Optional, List, Tuple
+import alpaca_trade_api as tradeapi
+import alpaca_trade_api.rest
 
 
 class Portfolio():
 
-    def __init__(self,account_number:Optional[str]):
+    def __init__(self, account_number: Optional[str]):
 
         self.positions = {}
         self.positions_count = 0
@@ -11,9 +13,11 @@ class Portfolio():
         self.profit_loss = 0.0
         self.risk_tolerance = 0.0
         self.account_number = account_number
+        self._api_client = None
 
-    #add postion to
-    def add_position(self,symbol: str , asset_type:str, purchase_date : Optional[str],quantity:int = 0,purchase_price: float = 0.0 )-> dict:
+    # add postion to
+    def add_position(self, symbol: str, asset_type: str, purchase_date: Optional[str], quantity: int = 0,
+                     purchase_price: float = 0.0) -> dict:
 
         self.positions[symbol] = {}
         self.positions[symbol]['symbol'] = symbol
@@ -24,15 +28,15 @@ class Portfolio():
 
         return self.positions
 
-    def add_positions(self,positions:List[dict]) -> dict:
-        if isinstance(positions,list):
+    def add_positions(self, positions: List[dict]) -> dict:
+        if isinstance(positions, list):
             for position in positions:
                 self.add_position(
-                    symbol = position['symbol'],
-                    asset_type= position['asset_type'],
-                    purchase_date=position.get('purchase_date',None),
-                    purchase_price=position.get('purchase_price',0.0),
-                    quantity=position.get('quantity',0)
+                    symbol=position['symbol'],
+                    asset_type=position['asset_type'],
+                    purchase_date=position.get('purchase_date', None),
+                    purchase_price=position.get('purchase_price', 0.0),
+                    quantity=position.get('quantity', 0)
                 )
 
             return self.positions
@@ -40,28 +44,39 @@ class Portfolio():
         else:
             raise TypeError("Positions must be  alist of dictionaries")
 
-    def remove_position(self,symbol: str)-> Tuple[bool,str]:
+    def remove_position(self, symbol: str) -> Tuple[bool, str]:
 
         if symbol in self.positions:
             del self.positions[symbol]
-            return (True,"{Symbol} was succesfully remove".format(symbol=symbol))
+            return (True, "{Symbol} was succesfully remove".format(symbol=symbol))
         else:
             return (False, "{Symbol} did not exist in the pprftolio".format(symbol=symbol))
 
-    def in_portfolio(self,symbol:str) -> bool:
+    def in_portfolio(self, symbol: str) -> bool:
         if symbol in self.positions:
             return True
         else:
             return False
 
-    def is_profitable(self,symbol:str,current_price:float) ->bool:
+    def is_profitable(self, symbol: str, current_price: float) -> bool:
 
         purchase_price = self.positions[symbol]['purchase_price']
 
-        if(purchase_price <= current_price):
+        if (purchase_price <= current_price):
             return True
-        elif(purchase_price > current_price):
+        elif (purchase_price > current_price):
             return False
+
+    @property
+    def api_client(self) -> alpaca_trade_api.rest.REST:
+
+        return self.api_client
+
+    @api_client.setter
+    def api_client(self, api:  alpaca_trade_api.rest.REST):
+
+        self._api_client = api
+
 
     def total_market_value(self):
         pass
@@ -71,3 +86,5 @@ class Portfolio():
 
     def risk_exposure(self):
         pass
+
+
