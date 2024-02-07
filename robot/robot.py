@@ -1,6 +1,5 @@
 import alpaca_trade_api as tradeapi
-
-
+from robot.portfolio import Portfolio
 class PyRobot():
 
     def __init__(self, key: str, secretKey: str, baseUrl: str) -> None:
@@ -16,7 +15,8 @@ class PyRobot():
         return self.api.get_account()
 
     def create_porfolio(self):
-        pass
+        #initialize a new portfolio obj
+        self.portolio = portfolio.Portfolio("xx")
 
     def create_trade(self):
         pass
