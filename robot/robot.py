@@ -1,8 +1,14 @@
+import pprint
 from datetime import datetime
-from typing import List
+from typing import List, Optional
+from robot.helper import Helper
 
 import alpaca_trade_api as tradeapi
+from alpaca_trade_api.entity import Bar
+
 from alpaca_trade_api.entity_v2 import QuotesV2
+from alpaca_trade_api import TimeFrame
+from alpaca_trade_api import TimeFrameUnit
 
 from robot.portfolio import Portfolio
 from robot.stock_frame import StockFrame
@@ -33,7 +39,7 @@ class PyRobot():
     def create_trade(self):
         pass
 
-    def create_stock_frame(self,data: List[dict]) -> StockFrame:
+    def create_stock_frame(self, data: List[dict]) -> StockFrame:
 
         self.stock_frame = StockFrame(data=data)
         return self.stock_frame
@@ -45,8 +51,47 @@ class PyRobot():
 
         return quotes
 
-    def get_historical_price(self):
-        pass
+    def get_historical_price(self, start: str, end: str, bar_size: int = 1, bar_time: str = 'Min',
+                             symbols: Optional[List[str]] = None) -> dict:
+
+        self._bar_size = bar_size
+        self._bar_time = bar_time
+
+        time_frame = TimeFrame(bar_size, TimeFrameUnit(bar_time))
+
+        new_prices = []
+
+        if not symbols:
+            symbols = self.portolio.positions
+
+        for symbol in symbols:
+            hystorical_price_response = self.api.get_bars(
+                symbol=symbols,
+                timeframe=time_frame,
+                start=str(start),
+                end=str(end)
+            )
+
+            self.historical_prices[symbol] = {}
+            self.historical_prices[symbol]['candels'] = hystorical_price_response.__dict__['_raw']
+
+            for candle in hystorical_price_response.__dict__['_raw']:
+
+                new_price_mini_dict = {}
+                new_price_mini_dict['symbol'] = symbol
+                new_price_mini_dict['open'] = candle['o']
+                new_price_mini_dict['close'] = candle['c']
+                new_price_mini_dict['high'] = candle['h']
+                new_price_mini_dict['low'] = candle['l']
+                new_price_mini_dict['volume'] = candle['v']
+                new_price_mini_dict['datetime'] = Helper.get_date_object(candle['t'])
+                new_prices.append(new_price_mini_dict)
+
+
+        self.historical_prices['aggregated'] = new_prices
+       # pprint.pprint(self.historical_prices['aggregated'])
+
+        return self.historical_prices
 
     @property
     def pre_market_open(self) -> bool:

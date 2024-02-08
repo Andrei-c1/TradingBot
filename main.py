@@ -1,8 +1,16 @@
+from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
+from robot.helper import Helper
+
 import pprint
 
 import alpaca_trade_api as tradeapi
+import pytz
+
 #from robot.robot import PyRobot
 from robot.robot import PyRobot
+from alpaca_trade_api import TimeFrameUnit
 
 
 from robot import config
@@ -56,4 +64,26 @@ robotOne.portolio.add_position(
 pprint.pprint(robotOne.portolio.positions)
 print("================")
 print(robotOne.regular_market_open)
+
+end_date = datetime.today() - timedelta(days=1)
+end_date = end_date.replace(tzinfo=pytz.UTC)
+start_date = end_date - timedelta(days=30)
+start_date= start_date.replace(tzinfo=pytz.UTC)
+
+
+
+historical_prices =robotOne.get_historical_price(
+   start=str(start_date.isoformat()),
+   end=str(end_date.isoformat()),
+   symbols=['TSLA','MSFT']
+)
+
+#convert de data into a stockFram
+
+stock_frame = robotOne.create_stock_frame(data=historical_prices['aggregated'])
+
+# Print the head of the stockframe
+
+pprint.pprint(stock_frame.frame.tail(n=20))
+
 
