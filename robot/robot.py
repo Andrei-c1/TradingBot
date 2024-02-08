@@ -1,7 +1,11 @@
 import pprint
 from datetime import datetime
 from typing import List, Optional
+
+from robot import config
 from robot.helper import Helper
+from robot.trades import Trade
+from robot.trades2 import Trade2
 
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.entity import Bar
@@ -36,8 +40,28 @@ class PyRobot():
         self.portolio.api_client = self.api
         return self.portolio
 
-    def create_trade(self):
-        pass
+
+    def create_trade(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
+                     price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> Trade2:
+        #initialazi a nre trade obj
+        trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
+
+        #create a new trade
+        trade.create_trade(
+            trade_id=trade_id,
+            order_type=order_type,
+            side=side,
+            symbol=symbol,
+            qty=qty,
+            trail_percentace=trail_percentace,
+            price=price,
+            stop_limit_price=stop_limit_price
+        )
+        #dictonary for trade, collection of trade obj
+        self.trades[trade_id] = trade
+        return trade
+
+
 
     def create_stock_frame(self, data: List[dict]) -> StockFrame:
 
