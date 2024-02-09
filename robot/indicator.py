@@ -9,7 +9,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Any
 
-from stock_frame import StockFrame
+from robot.stock_frame import StockFrame
 
 
 class Indicator():
@@ -60,7 +60,7 @@ class Indicator():
         column_name = 'change_in_price'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['func'] = self.change_in_price()
+        self._current_indicators[column_name]['func'] = self.change_in_price
 
         self._frame[column_name] = self._price_group['close'].transform(
             lambda x: x.diff()
@@ -74,7 +74,7 @@ class Indicator():
         column_name = 'rsi'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['func'] = self.rsi()
+        self._current_indicators[column_name]['func'] = self.rsi
 
         if 'change_in_price' not in self._frame.columns:
             self.change_in_price()
@@ -122,7 +122,7 @@ class Indicator():
         column_name = 'sma'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['func'] = self.sma()
+        self._current_indicators[column_name]['func'] = self.sma
 
         # add sma
         self._frame[column_name] = self._price_group['close'].transform(
@@ -139,7 +139,7 @@ class Indicator():
         column_name = 'ema'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['func'] = self.ema()
+        self._current_indicators[column_name]['func'] = self.ema
 
         # add ema
         self._frame[column_name] = self._price_group['close'].transform(

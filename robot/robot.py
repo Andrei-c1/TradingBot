@@ -1,6 +1,9 @@
 import pprint
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
+import time as time_true
+
+import pytz
 
 from robot import config
 from robot.helper import Helper
@@ -116,6 +119,80 @@ class PyRobot():
        # pprint.pprint(self.historical_prices['aggregated'])
 
         return self.historical_prices
+
+
+    def get_latest_bar(self) ->  List[dict]:
+        bar_size = self._bar_size
+        bar_time = self._bar_time
+
+        time_frame = TimeFrame(bar_size, TimeFrameUnit(bar_time))
+
+        latest = []
+
+        end_date = datetime.today() - timedelta(days=1)
+        end_date = end_date.replace(tzinfo=pytz.UTC)
+        start_date = end_date - timedelta(days=30)
+        start_date = start_date.replace(tzinfo=pytz.UTC)
+
+        for symbol in self.portolio.positions:
+            print(symbol)
+            hystorical_price_response = self.api.get_bars(
+                symbol=symbol,
+                timeframe=time_frame,
+                start=str(start_date.isoformat()),
+                end=str(end_date.isoformat()),
+            )
+
+
+            for candle in hystorical_price_response.__dict__['_raw'][-1:]:
+                new_price_mini_dict = {}
+                new_price_mini_dict['symbol'] = symbol
+                new_price_mini_dict['open'] = candle['o']
+                new_price_mini_dict['close'] = candle['c']
+                new_price_mini_dict['high'] = candle['h']
+                new_price_mini_dict['low'] = candle['l']
+                new_price_mini_dict['volume'] = candle['v']
+                new_price_mini_dict['datetime'] = Helper.get_date_object(candle['t'])
+                latest.append(new_price_mini_dict)
+
+        return latest
+
+    def wait_till_next_bar(self,latest_bar_time):
+
+        #To Do: working solution
+
+        # last_bar_time = latest_bar_time.replace(tzinfo=timezone.utc)
+        # print(last_bar_time)
+        # next_bar_time = last_bar_time + timedelta(seconds=60)
+        # print(next_bar_time)
+        # curr_bar_time = datetime.now(tz=timezone.utc) - timedelta(days=1)
+        # print(curr_bar_time)
+        #
+        # last_bar_timestamp = int(last_bar_time.timestamp())
+        # print(last_bar_timestamp)
+        # print(datetime.utcfromtimestamp(last_bar_timestamp))
+        # next_bar_timestamp = int(next_bar_time.timestamp())
+        # print(next_bar_timestamp)
+        # print(datetime.utcfromtimestamp(next_bar_timestamp))
+        # curr_bar_timestamp = int(curr_bar_time.timestamp())
+        # print(curr_bar_timestamp)
+        # print(datetime.utcfromtimestamp(curr_bar_timestamp))
+        #
+        # time_to_wait_now = next_bar_timestamp - curr_bar_timestamp
+        #
+        # if time_to_wait_now < 0:
+        #     time_to_wait_now = 0
+        #
+        # print("Sleep Time: {seconds}".format(seconds=time_to_wait_now))
+        # print("-" * 80)
+        # print('')
+
+
+        time_true.sleep(62)
+
+
+
+
 
     @property
     def pre_market_open(self) -> bool:

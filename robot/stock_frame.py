@@ -101,6 +101,36 @@ class StockFrame():
         pass
 
     def _check_signals(self, indicators: dict) -> Union[pd.Series, None]:
-        pass
+        # Grab the last rows.
+
+        last_rows = self._symbol_groups.tail(1)
+
+        # Define a list of conditions.
+        conditions = {}
 
 
+        for indicator in indicators:
+                column = last_rows[indicator]
+
+                # Grab the Buy & Sell Condition.
+                buy_condition_target = indicators[indicator]['buy']
+                sell_condition_target = indicators[indicator]['sell']
+
+                buy_condition_operator = indicators[indicator]['buy_operator']
+                sell_condition_operator = indicators[indicator]['sell_operator']
+
+                condition_1: pd.Series = buy_condition_operator(
+                    column, buy_condition_target
+                )
+                condition_2: pd.Series = sell_condition_operator(
+                    column, sell_condition_target
+                )
+
+                condition_1 = condition_1.where(lambda x: x == True).dropna()
+                condition_2 = condition_2.where(lambda x: x == True).dropna()
+
+                conditions['buys'] = condition_1
+                conditions['sells'] = condition_2
+
+
+        return conditions
