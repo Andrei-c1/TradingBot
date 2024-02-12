@@ -1,5 +1,6 @@
 import pprint
 from datetime import datetime, timedelta, timezone
+import random
 from typing import List, Optional
 import time as time_true
 
@@ -27,7 +28,7 @@ class PyRobot():
         self.api = tradeapi.REST(key,
                                  secretKey,
                                  baseUrl)
-        self.trades: dict = {}
+        self.trades_to_execute: dict = {}
         self.historical_prices: dict = {}
         self.stock_frame = None
         self.account_numer = account_number
@@ -44,25 +45,56 @@ class PyRobot():
         return self.portolio
 
 
-    def create_trade(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
-                     price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> Trade2:
-        #initialazi a nre trade obj
-        trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
+    def create_trade_to_exectue(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
+                     price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> None:
 
-        #create a new trade
-        trade.create_trade(
-            trade_id=trade_id,
-            order_type=order_type,
-            side=side,
-            symbol=symbol,
-            qty=qty,
-            trail_percentace=trail_percentace,
-            price=price,
-            stop_limit_price=stop_limit_price
+        trade_to_exectue = {}
+        trade_to_exectue['trade_id'] = trade_id
+        trade_to_exectue['order_type'] = order_type
+        trade_to_exectue['side'] = side
+        trade_to_exectue['sybmol'] = symbol
+        trade_to_exectue['qty'] = qty
+        trade_to_exectue['price'] = price
+        trade_to_exectue['stop_limit_price'] = stop_limit_price
+        trade_to_exectue['trail_percentace'] = trail_percentace
+
+        self.trades_to_execute[trade_id] = trade_to_exectue
+
+    def execute_trade(self,trade:dict):
+
+        ex_trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
+
+        ex_trade.create_trade(
+            trade_id=f"gcos_{random.randrange(100000000)}",
+            order_type=trade['order_type'],
+            side=trade['side'],
+            symbol=trade['sybmol'],
+            qty=trade['qty'],
+            price=trade['price'],
+            stop_limit_price=trade['stop_limit_price'],
+            trail_percentace=trade['trail_percentace']
+
         )
-        #dictonary for trade, collection of trade obj
-        self.trades[trade_id] = trade
-        return trade
+
+
+        #initialazi a nre trade obj
+        # trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
+        #
+        # #create a new trade
+        # trade.create_trade(
+        #     trade_id=trade_id,
+        #     order_type=order_type,
+        #     side=side,
+        #     symbol=symbol,
+        #     qty=qty,
+        #     trail_percentace=trail_percentace,
+        #     price=price,
+        #     stop_limit_price=stop_limit_price
+        # )
+        #
+        # #dictonary for trade, collection of trade obj
+        # self.trades[trade_id] = trade
+        # return trade
 
 
 

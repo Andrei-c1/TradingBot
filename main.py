@@ -63,13 +63,13 @@ robotOne_porfolio = robotOne.create_porfolio()
 
 end_date = datetime.today() - timedelta(days=1)
 end_date = end_date.replace(tzinfo=pytz.UTC)
-start_date = end_date - timedelta(days=30)
+start_date = end_date - timedelta(days=5)
 start_date = start_date.replace(tzinfo=pytz.UTC)
 
 historical_prices = robotOne.get_historical_price(
     start=str(start_date.isoformat()),
     end=str(end_date.isoformat()),
-    symbols=['MSFT']
+    symbols=['TSLA']
 )
 
 # convert de data into a stockFram
@@ -81,11 +81,12 @@ pprint.pprint(stock_frame.frame)
 #pprint.pprint(stock_frame.frame.tail(n=20))
 
 symbol = "TSLA"
-qty = 6
-#robotOne.create_trade(f"gcos_{random.randrange(100000000)}", 'limit', 'buy', symbol, qty,price=400)
-#print(robotOne.trades)
+qty = 1
+id = f"gcos_{random.randrange(100000000)}"
 
-# robotOne.api.submit_order(symbol=symbol, qty=qty)
+robotOne.create_trade_to_exectue("1","market",symbol=symbol,qty=qty,side='buy')
+print(robotOne.trades_to_execute["1"])
+robotOne.execute_trade(robotOne.trades_to_execute["1"])
 
 indicator_client = Indicator(stock_frame)
 
@@ -97,11 +98,14 @@ indicator_client.ema(period=50)
 
 indicator_client.set_indicator_signals(
     indicator='rsi',
-    buy=40.0,
-    sell=80.0,
+    buy=20.0,
+    sell=20.0,
     condition_buy=operator.ge,
     condition_sell=operator.le
 )
+
+pprint.pprint(stock_frame.frame.head(20)['ema'])
+
 
 trade_dict = {
     'TSLA':{
@@ -110,11 +114,11 @@ trade_dict = {
 
     }
 }
-pprint.pprint(robotOne.get_latest_bar())
-print("xxxx")
-time = robotOne.stock_frame.frame.tail(1).index.get_level_values(1)[0]
-
-pprint.pprint(stock_frame.frame['rsi'])
-print(robotOne.trades)
-print(indicator_client.check_signals())
+# pprint.pprint(robotOne.get_latest_bar())
+# print("xxxx")
+# time = robotOne.stock_frame.frame.tail(1).index.get_level_values(1)[0]
+#
+# pprint.pprint(stock_frame.frame['rsi'])
+# print(robotOne.trades)
+# print(indicator_client.check_signals())
 

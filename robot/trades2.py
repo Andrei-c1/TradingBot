@@ -8,7 +8,7 @@ from typing import Union
 from typing import Optional
 
 
-class Trade2():
+class Trade2:
 
     def __init__(self, key: str, secretKey: str, baseUrl: str, account_number: str):
 
@@ -27,6 +27,13 @@ class Trade2():
         self._order_response = None
         self._trigger_added = False
         self._multi_leg = False
+
+
+    @property
+    def get_order(self) -> dict:
+        return self.order
+    def __str__(self):
+        return f"Trade ID: {self.trade_id}, Order: {self.order}"
 
     def create_trade(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
                      price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> dict:
@@ -103,5 +110,5 @@ class Trade2():
             )
             self.order['response'] = o
 
-        pprint.pprint(self.order)
+        # pprint.pprint(self.order)
         return self.order
