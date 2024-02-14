@@ -3,6 +3,9 @@ import random
 from datetime import datetime
 from datetime import timezone
 from datetime import timedelta
+
+import pandas as pd
+
 from robot.helper import Helper
 from robot.indicator import Indicator
 
@@ -48,14 +51,6 @@ robotOne_porfolio = robotOne.create_porfolio()
 # new_position = robotOne_porfolio.add_positions(positions=multi_position)
 # pprint.pprint(new_position)
 
-# add single position
-# robotOne.portolio.add_position(
-#     symbol='MSFT',
-#     quantity=10,
-#     purchase_price=10.00,
-#     asset_type='equity',
-#     purchase_date='2020-04-01'
-# )
 
 # pprint.pprint(robotOne.portolio.positions)
 # print("================")
@@ -78,15 +73,13 @@ stock_frame = robotOne.create_stock_frame(data=historical_prices['aggregated'])
 
 # Print the head of the stockframe
 pprint.pprint(stock_frame.frame)
-#pprint.pprint(stock_frame.frame.tail(n=20))
+
 
 symbol = "TSLA"
 qty = 1
-id = f"gcos_{random.randrange(100000000)}"
 
 robotOne.create_trade_to_exectue("1","market",symbol=symbol,qty=qty,side='buy')
-print(robotOne.trades_to_execute["1"])
-robotOne.execute_trade(robotOne.trades_to_execute["1"])
+
 
 indicator_client = Indicator(stock_frame)
 
@@ -98,27 +91,28 @@ indicator_client.ema(period=50)
 
 indicator_client.set_indicator_signals(
     indicator='rsi',
-    buy=20.0,
+    buy=50.0,
     sell=20.0,
     condition_buy=operator.ge,
     condition_sell=operator.le
 )
 
-pprint.pprint(stock_frame.frame.head(20)['ema'])
 
+while True:
+    latest_bar = robotOne.get_latest_bar(['TSLA'])
 
-trade_dict = {
-    'TSLA':{
-       # 'trade_func': robotOne.trades['TSLA'],#this is the trade i want to execute if indicators happen
-        #'trade_id': robotOne.trades['TSLA'].trade_id,
+    stock_frame.add_rows(latest_bar)
 
-    }
-}
-# pprint.pprint(robotOne.get_latest_bar())
-# print("xxxx")
-# time = robotOne.stock_frame.frame.tail(1).index.get_level_values(1)[0]
-#
-# pprint.pprint(stock_frame.frame['rsi'])
-# print(robotOne.trades)
-# print(indicator_client.check_signals())
+    indicator_client.refresh()
+
+    signals = indicator_client.check_signals()
+
+    buys: pd.Series = signals['buys']
+
+    if not buys.empty:
+        robotOne.execute_trade(robotOne.trades_to_execute["1"])
+        break
+
+    robotOne.wait_till_next_bar()
+
 

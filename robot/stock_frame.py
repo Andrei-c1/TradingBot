@@ -52,6 +52,8 @@ class StockFrame():
 
     def _parse_datetime_column(self, price_df: pd.DataFrame) -> pd.DataFrame:
 
+        print(price_df['datetime'])
+
         price_df['datetime'] = pd.to_datetime(
             price_df['datetime'],
             unit='ms',
@@ -65,29 +67,29 @@ class StockFrame():
 
         return price_df
 
-    def add_rows(self, data: dict) -> None:
+    def add_rows(self, data) -> None:
 
         column_names = ['open', 'close', 'high', 'low', 'volume']
 
         # for quotes
-        for symbol in data:
+        for quote in data:
+            print("QUOTE DATETIME")
+            print(quote['datetime'])
             # parse that timestamp
             time_stamp = pd.to_datetime(
-                data[symbol]['quoteTimeInLong'],
-                unit='ms',
-                origin='unix'
+                quote['datetime']
             )
 
             # define index
-            row_id = (symbol, time_stamp)
+            row_id = (quote['symbol'], time_stamp)
 
             # define values
             row_values = [
-                data[symbol]['openPrice'],
-                data[symbol]['closedPrice'],
-                data[symbol]['highPrice'],
-                data[symbol]['lowPrice'],
-                data[symbol]['askSize'] + data[symbol]['bidSize']
+                quote['open'],
+                quote['close'],
+                quote['high'],
+                quote['low'],
+                quote['volume']
             ]
 
             # new row

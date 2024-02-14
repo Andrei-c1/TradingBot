@@ -8,8 +8,7 @@ import pytz
 
 from robot import config
 from robot.helper import Helper
-from robot.trades import Trade
-from robot.trades2 import Trade2
+from robot.trades import Trade2
 
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.entity import Bar
@@ -44,9 +43,8 @@ class PyRobot():
         self.portolio.api_client = self.api
         return self.portolio
 
-
     def create_trade_to_exectue(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
-                     price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> None:
+                                price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> None:
 
         trade_to_exectue = {}
         trade_to_exectue['trade_id'] = trade_id
@@ -60,9 +58,10 @@ class PyRobot():
 
         self.trades_to_execute[trade_id] = trade_to_exectue
 
-    def execute_trade(self,trade:dict):
+    def execute_trade(self, trade: dict):
 
-        ex_trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
+        ex_trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL,
+                          config.ACCOUNT_NUMBER)
 
         ex_trade.create_trade(
             trade_id=f"gcos_{random.randrange(100000000)}",
@@ -76,8 +75,7 @@ class PyRobot():
 
         )
 
-
-        #initialazi a nre trade obj
+        # initialazi a nre trade obj
         # trade = Trade2(config.ALPACA_API_KEY, config.ALPACA_API_SECRET_KEY, config.APCA_API_BASE_URL, config.ACCOUNT_NUMBER)
         #
         # #create a new trade
@@ -95,8 +93,6 @@ class PyRobot():
         # #dictonary for trade, collection of trade obj
         # self.trades[trade_id] = trade
         # return trade
-
-
 
     def create_stock_frame(self, data: List[dict]) -> StockFrame:
 
@@ -135,7 +131,6 @@ class PyRobot():
             self.historical_prices[symbol]['candels'] = hystorical_price_response.__dict__['_raw']
 
             for candle in hystorical_price_response.__dict__['_raw']:
-
                 new_price_mini_dict = {}
                 new_price_mini_dict['symbol'] = symbol
                 new_price_mini_dict['open'] = candle['o']
@@ -146,16 +141,15 @@ class PyRobot():
                 new_price_mini_dict['datetime'] = Helper.get_date_object(candle['t'])
                 new_prices.append(new_price_mini_dict)
 
-
         self.historical_prices['aggregated'] = new_prices
-       # pprint.pprint(self.historical_prices['aggregated'])
+        # pprint.pprint(self.historical_prices['aggregated'])
 
         return self.historical_prices
 
-
-    def get_latest_bar(self) ->  List[dict]:
+    def get_latest_bar(self, symbols: List[str]) -> List[dict]:
         bar_size = self._bar_size
         bar_time = self._bar_time
+        print(bar_size, bar_time)
 
         time_frame = TimeFrame(bar_size, TimeFrameUnit(bar_time))
 
@@ -166,7 +160,7 @@ class PyRobot():
         start_date = end_date - timedelta(days=30)
         start_date = start_date.replace(tzinfo=pytz.UTC)
 
-        for symbol in self.portolio.positions:
+        for symbol in symbols:
             print(symbol)
             hystorical_price_response = self.api.get_bars(
                 symbol=symbol,
@@ -174,7 +168,6 @@ class PyRobot():
                 start=str(start_date.isoformat()),
                 end=str(end_date.isoformat()),
             )
-
 
             for candle in hystorical_price_response.__dict__['_raw'][-1:]:
                 new_price_mini_dict = {}
@@ -189,9 +182,9 @@ class PyRobot():
 
         return latest
 
-    def wait_till_next_bar(self,latest_bar_time):
+    def wait_till_next_bar(self):
 
-        #To Do: working solution
+        # To Do: working solution
 
         # last_bar_time = latest_bar_time.replace(tzinfo=timezone.utc)
         # print(last_bar_time)
@@ -219,12 +212,7 @@ class PyRobot():
         # print("-" * 80)
         # print('')
 
-
         time_true.sleep(62)
-
-
-
-
 
     @property
     def pre_market_open(self) -> bool:
