@@ -10,6 +10,16 @@ from typing import Optional
 
 class Trade2:
 
+    """
+      Object Type:
+      ----
+      `pyrobot.Trade`
+
+      Overview:
+      ----
+      Reprsents the Trade Object which is used to create new trades
+      """
+
     def __init__(self, key: str, secretKey: str, baseUrl: str, account_number: str):
 
         self.api = tradeapi.REST(key,
@@ -25,8 +35,7 @@ class Trade2:
         # self.enter_or_exit_opposite = ""
         # from api
         self._order_response = None
-        self._trigger_added = False
-        self._multi_leg = False
+
 
 
     @property
@@ -37,6 +46,35 @@ class Trade2:
 
     def create_trade(self, trade_id: str, order_type: str, side: str, symbol: str, qty: int,
                      price: int = 0, stop_limit_price: int = 0, trail_percentace: int = 0) -> dict:
+
+        """Creates a new Trade
+
+               Sends an api request to perform a certain type of trade
+
+               Arguments:
+               ----
+               order_type {str} -- The type of order you would like to create. Can be
+                   one of the following: ['market', 'limit', 'stop', 'stop_limit', 'trailing_stop']
+
+               side {str} -- The side the trade will take, can be one of the
+                   following: ['buy', 'sell']
+
+               symbol {str} -- The symbol of the financial instrument being traded,
+
+               qty{int} -- The price at which the trade is executed
+
+               stop_limit_order{int} -- This argument is used in conjunction with certain order types like 'stop-limit' orders.
+                It specifies the price at which a stop-limit order becomes a limit order.It's optional and has a default value of 0.
+
+               trail_percentace{int} -- This argument is used for trailing stop orders, specifying the percentage below
+               the current market price for a sell trailing stop, or above the market price for a buy trailing stop.
+                It's optional and has a default value of 0.
+
+
+               Returns:
+               ----
+               {dict} -- Returns the order in a dictionary
+               """
 
         self.trade_id = trade_id
         self.order['order_type'] = order_type
